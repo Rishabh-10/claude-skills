@@ -1,0 +1,16 @@
+{
+  "name": "git-workflow",
+  "version": "0.1.0",
+  "description": "Commits, pull requests, changelogs, and releases that follow the repo's own conventions.",
+  "author": {
+    "name": "Rishabh Bharota"
+  },
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "commit",
+    "pull-request",
+    "changelog",
+    "release"
+  ]
+}

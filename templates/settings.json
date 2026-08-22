@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+
+  "//": [
+    "Example project settings — copy to .claude/settings.json in a target repo,",
+    "then delete anything that does not apply. Committed settings apply to",
+    "everyone on the team; keep machine-specific values in settings.local.json",
+    "(gitignored) instead.",
+    "",
+    "The `enabledPlugins` block below assumes the marketplace has been added:",
+    "  /plugin marketplace add Rishabh-10/claude-skills"
+  ],
+
+  "enabledPlugins": {
+    "dev-workflow@rishabh-dev-kit": true,
+    "code-quality@rishabh-dev-kit": true,
+    "git-workflow@rishabh-dev-kit": true,
+    "guardrails@rishabh-dev-kit": true
+  },
+
+  "permissions": {
+    "//": "Allow the read-only commands worth never being prompted for. Add the project's own test/build commands here — that is where most prompt fatigue comes from.",
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(rg:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/id_rsa)"
+    ]
+  },
+
+  "//hooks": [
+    "The guardrails plugin supplies safety, secret-protection, formatting, and",
+    "session-context hooks — enable the plugin rather than duplicating them here.",
+    "Use this block only for hooks specific to THIS project. The example below",
+    "type-checks after any TypeScript edit; delete it if it does not apply."
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "if": "Edit(**/*.ts)",
+            "timeout": 120,
+            "statusMessage": "Type checking"
+          }
+        ]
+      }
+    ]
+  }
+}

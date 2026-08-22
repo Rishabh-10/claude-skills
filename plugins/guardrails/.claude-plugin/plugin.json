@@ -1,0 +1,15 @@
+{
+  "name": "guardrails",
+  "version": "0.1.0",
+  "description": "Cross-platform hooks that block destructive commands, protect secrets, auto-format edits, and inject repo context at session start.",
+  "author": {
+    "name": "Rishabh Bharota"
+  },
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "safety",
+    "formatting",
+    "secrets"
+  ]
+}

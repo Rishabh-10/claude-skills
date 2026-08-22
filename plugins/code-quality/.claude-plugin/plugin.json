@@ -1,0 +1,15 @@
+{
+  "name": "code-quality",
+  "version": "0.2.0",
+  "description": "Review, test, refactor, and audit skills plus specialist subagents for each.",
+  "author": {
+    "name": "Rishabh Bharota"
+  },
+  "license": "MIT",
+  "keywords": [
+    "review",
+    "testing",
+    "refactoring",
+    "security"
+  ]
+}

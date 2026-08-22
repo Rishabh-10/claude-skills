@@ -1,0 +1,83 @@
+{
+  "name": "rishabh-dev-kit",
+  "description": "Reusable Claude Code plugins for software development: workflow skills, review agents, and safety hooks.",
+  "version": "0.2.0",
+  "owner": {
+    "name": "Rishabh Bharota",
+    "url": "https://github.com/Rishabh-10"
+  },
+  "plugins": [
+    {
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow",
+      "description": "The build loop: brainstorm, challenge, explore, plan, implement, debug, map, hand off.",
+      "version": "0.2.0",
+      "category": "development",
+      "keywords": [
+        "workflow",
+        "planning",
+        "debugging",
+        "exploration"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "code-quality",
+      "source": "./plugins/code-quality",
+      "description": "Review, test, TDD, refactor, and audit skills plus specialist subagents for each.",
+      "version": "0.2.0",
+      "category": "quality",
+      "keywords": [
+        "review",
+        "testing",
+        "refactoring",
+        "security"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "git-workflow",
+      "source": "./plugins/git-workflow",
+      "description": "Commits, pull requests, changelogs, and releases that follow the repo's own conventions.",
+      "version": "0.1.0",
+      "category": "vcs",
+      "keywords": [
+        "git",
+        "commit",
+        "pull-request",
+        "changelog",
+        "release"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "guardrails",
+      "source": "./plugins/guardrails",
+      "description": "Cross-platform hooks that block destructive commands, protect secrets, auto-format edits, and inject repo context at session start.",
+      "version": "0.1.0",
+      "category": "safety",
+      "keywords": [
+        "hooks",
+        "safety",
+        "formatting",
+        "secrets"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "claude-setup",
+      "source": "./plugins/claude-setup",
+      "description": "Set Claude Code up in a repository: generate a grounded CLAUDE.md, wire settings, author new skills, and audit config drift.",
+      "version": "0.1.0",
+      "category": "meta",
+      "keywords": [
+        "setup",
+        "bootstrap",
+        "claude-md",
+        "skills",
+        "meta"
+      ],
+      "license": "MIT"
+    }
+  ]
+}

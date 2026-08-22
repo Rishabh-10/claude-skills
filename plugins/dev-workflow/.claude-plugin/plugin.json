@@ -1,0 +1,15 @@
+{
+  "name": "dev-workflow",
+  "version": "0.2.0",
+  "description": "The build loop: explore a codebase, plan a change, implement it, debug it, hand it off.",
+  "author": {
+    "name": "Rishabh Bharota"
+  },
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "planning",
+    "debugging",
+    "exploration"
+  ]
+}

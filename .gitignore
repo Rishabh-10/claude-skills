@@ -1,0 +1,12 @@
+# Claude Code local state
+.claude/settings.local.json
+.claude/handoff.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Node (only if a plugin ever gains dependencies)
+node_modules/
