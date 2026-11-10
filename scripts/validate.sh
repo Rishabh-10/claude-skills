@@ -21,8 +21,8 @@ for f in .claude-plugin/marketplace.json plugins/*/.claude-plugin/plugin.json \
   fi
 done
 
-step "Hook scripts parse"
-for f in plugins/*/scripts/*.js; do
+step "Scripts parse"
+for f in plugins/*/scripts/*.js plugins/*/skills/*/*.js; do
   [ -f "$f" ] || continue
   if node --check "$f" 2>/dev/null; then ok "$f"; else bad "$f"; fi
 done

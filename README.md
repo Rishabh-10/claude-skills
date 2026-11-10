@@ -94,7 +94,7 @@ decide on its own to commit, open a PR, or cut a release.
 
 | Command | What it does |
 | --- | --- |
-| `/career-tools:tailor` | Resume + job description in, tailored resume + cover letter + notes out |
+| `/career-tools:tailor` | Resume + job description in, tailored resume and cover letter out as PDF and DOCX |
 
 ```
 /career-tools:tailor ~/cv.pdf https://jobs.example.com/staff-engineer
@@ -105,11 +105,21 @@ The resume can be PDF, DOCX (via pandoc), LaTeX, Markdown, or text; the posting 
 file, a URL, or pasted text. It decodes the posting, maps every requirement to evidence in
 the resume, then rewrites: reorders, rewords into the posting's vocabulary, cuts what does
 not serve the role. It never adds a skill, title, or number the original lacks; missing
-metrics become questions in `notes.md` instead.
+metrics come back as questions in its report instead.
 
 Agent: `application-reviewer` checks every tailored claim against the original resume and
-scores requirement coverage before anything is written out. Output lands in
-`applications/<company>-<role>/`, and the submitted files carry no change notes.
+scores requirement coverage before anything is rendered.
+
+Output is `<Name>_Resume` and `<Name>_Cover_Letter`, each as `.pdf` and `.docx`, in
+`$CAREER_TOOLS_OUTPUT_DIR/<company>-<role>/` (default `./applications/<company>-<role>/`).
+Set the folder once in `~/.claude/settings.json`:
+
+```json
+{ "env": { "CAREER_TOOLS_OUTPUT_DIR": "C:/Users/you/Documents/applications" } }
+```
+
+The bundled renderer is dependency-free Node: single-column, ATS-readable text, clickable
+links, serif or sans, A4 or Letter.
 
 ### `guardrails` — hooks, no commands
 

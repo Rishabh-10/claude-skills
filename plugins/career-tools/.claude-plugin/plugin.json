@@ -1,7 +1,7 @@
 {
   "name": "career-tools",
-  "version": "0.1.0",
-  "description": "Turn a resume and a job description into a tailored resume and cover letter, with an independent check that nothing was invented.",
+  "version": "0.2.0",
+  "description": "Turn a resume and a job description into a tailored resume and cover letter as PDF and DOCX, with an independent check that nothing was invented.",
   "author": {
     "name": "Rishabh Bharota"
   },

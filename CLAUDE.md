@@ -4,7 +4,8 @@ A Claude Code plugin marketplace. Six plugins under `plugins/`, catalogued in
 `.claude-plugin/marketplace.json`, plus portable templates in `templates/`.
 
 There is no application here — the deliverables are Markdown instructions, agent
-definitions, and four Node.js hook scripts.
+definitions, four Node.js hook scripts, and the career-tools document renderer
+(`plugins/career-tools/skills/tailor/render.js`).
 
 ## Commands
 
@@ -13,6 +14,7 @@ definitions, and four Node.js hook scripts.
 | Validate everything | `bash scripts/validate.sh` |
 | Check frontmatter only | `node scripts/check-frontmatter.js .` |
 | Syntax-check hooks | `node --check plugins/guardrails/scripts/*.js` |
+| Smoke-test the renderer | `node plugins/career-tools/skills/tailor/render.js render <draft.json> <out-base>` |
 | Install locally for testing | `claude plugin marketplace add ./` then `claude plugin install <name>@rishabh-dev-kit --scope local` |
 | Refresh after an edit | `claude plugin install <name>@rishabh-dev-kit --scope local` (re-copies into the cache) |
 
@@ -33,7 +35,7 @@ agreement between each `plugin.json` and its marketplace entry, and then runs
 - **Version must match in two places** — `plugins/<name>/.claude-plugin/plugin.json` and
   the entry in `.claude-plugin/marketplace.json`. Bump both, or clients keep the cached
   copy. `validate.sh` enforces this.
-- **Hook scripts stay dependency-free and cross-platform.** No `jq`, no bash-isms, no
+- **Scripts (hooks and the renderer) stay dependency-free and cross-platform.** No `jq`, no bash-isms, no
   POSIX-only paths. Normalise paths to forward slashes before matching. These run on
   Windows.
 - **A hook must never break a turn.** Exit 0 on every unexpected condition — missing

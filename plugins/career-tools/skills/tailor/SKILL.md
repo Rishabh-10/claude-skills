@@ -1,9 +1,9 @@
 ---
 name: tailor
-description: Tailor a resume and write a matching cover letter for one specific job description, in one pass, without inventing experience. Use when the user hands over a resume plus a job posting (file, URL, or pasted text) and wants an application package targeted at that role.
+description: Tailor a resume and write a matching cover letter for one specific job description, in one pass, without inventing experience, and deliver both as PDF and DOCX. Use when the user hands over a resume plus a job posting (file, URL, or pasted text) and wants an application package targeted at that role.
 argument-hint: "<resume path> <job description path, URL, or pasted text> [--resume-only | --letter-only]"
 disable-model-invocation: true
-allowed-tools: Read, Write, Glob, Bash(pandoc:*)
+allowed-tools: Read, Write, Glob, Bash(node:*), Bash(pandoc:*)
 ---
 
 # Tailor an application
@@ -68,17 +68,15 @@ Forbidden moves - these are fabrication, regardless of how plausible they sound:
 
 - Adding a tool, language, skill, certification, title, employer, or date the original does
   not contain and the user has not stated in this conversation.
-- Inventing or inflating a number. If a bullet would be stronger with a metric, put the
-  question in the notes; do not supply the metric.
+- Inventing or inflating a number. If a bullet would be stronger with a metric, ask about it in
+  the report; do not supply the metric.
 - Upgrading scope: "contributed to" into "led", "used" into "architected", team into company.
 - Keyword stuffing - listing posting terms with no evidence row, including in white or hidden
   text.
 
 Keep the format machine-readable: standard section headings (Experience, Education, Skills),
-no tables or multi-column layouts for content, contact details as plain text.
-
-If the source is LaTeX, edit the LaTeX and keep its template and macros intact. Otherwise
-write Markdown.
+a single column, contact details as plain text. Keep the original's section order and page
+count unless the posting gives a reason to change them.
 
 ## 5. Write the cover letter
 
@@ -99,33 +97,73 @@ in a letter to a different company.
 The letter draws only on the evidence inventory. It has the same fabrication rules as the
 resume.
 
-## 6. Verify with an independent review
+## 6. Write the drafts
 
-Dispatch the `career-tools:application-reviewer` agent with the original resume, the job
-description, and your drafts, passed as text (it cannot convert DOCX or fetch URLs). It checks every claim against the original and scores the match
-cold. Fix every fabrication finding it reports, then fix or consciously reject the coverage
-findings. Do not skip this step because the drafts look right to you; you wrote them, so you
-are the worst judge of whether they drifted.
+The deliverables are PDF and DOCX files, produced by the bundled renderer. Get the paths first,
+using a lowercase hyphenated slug such as `acme-staff-backend-engineer`:
 
-## 7. Write the outputs
+```
+node "${CLAUDE_SKILL_DIR}/render.js" paths <company>-<role>
+```
 
-Write to `applications/<company>-<role>/` in the current directory (lowercase, hyphenated),
-or wherever the user asked:
+It creates the output folder (`$CAREER_TOOLS_OUTPUT_DIR/<slug>`, or `./applications/<slug>`
+when that variable is unset) and prints `outDir`, `resumeDraft`, and `letterDraft`. Write each
+draft as JSON to the printed draft path:
 
-- `resume.md` (or `resume.tex`) - the tailored resume and nothing else. No change notes, no
-  comments: this file gets submitted.
-- `cover-letter.md` - the letter, ready to send.
-- `notes.md` - the evidence table, a list of what changed and why, the gaps, the reviewer's
-  verdict, and **questions that would make this stronger** (missing metrics, unclear scope,
-  experience the candidate may have left off).
+```json
+{
+  "kind": "resume",
+  "style": { "font": "serif", "paper": "a4" },
+  "name": "Full Name",
+  "contact": ["City, Country | [me@example.com](mailto:me@example.com) | +1 555 0100"],
+  "sections": [
+    { "heading": "Experience", "blocks": [
+      { "row": ["**Company**", "**City, Country**"] },
+      { "row": ["*Job Title*", "*Jan 2022 – Present*"] },
+      { "bullets": ["Did a thing, with the outcome."] },
+      { "p": "A plain paragraph." }
+    ]}
+  ]
+}
+```
 
-If pandoc is available, offer `pandoc resume.md -o resume.docx`; do not convert unasked.
+- `kind` is `resume` or `letter`. A letter has one section with no heading: paragraphs, with
+  `\n` for the line break in the sign-off.
+- A `row` is a line with a left part and a right-aligned part (dates, location, a link); the
+  right part may be `""`. Inline text supports `**bold**`, `*italic*`, and `[text](url)`.
+- `style.font` is `serif` (Times) or `sans` (Helvetica/Arial); `style.paper` is `a4` or
+  `letter`. Match the original resume's look; use `letter` paper for US and Canadian roles.
+- Text is limited to the Windows-1252 character set (Latin letters, curly quotes, dashes, `•`,
+  `×`). The renderer rejects anything else and names the characters; replace them.
+
+## 7. Verify with an independent review
+
+Dispatch the `career-tools:application-reviewer` agent with the original resume and job
+description as text (it cannot convert DOCX or fetch URLs), plus the draft paths. It checks
+every claim against the original and scores the match cold. Fix every fabrication finding it
+reports, then fix or consciously reject the coverage findings. Do not skip this step because
+the drafts look right to you; you wrote them, so you are the worst judge of whether they
+drifted.
+
+## 8. Render
+
+```
+node "${CLAUDE_SKILL_DIR}/render.js" render <resumeDraft> "<outDir>/<First_Last>_Resume"
+node "${CLAUDE_SKILL_DIR}/render.js" render <letterDraft> "<outDir>/<First_Last>_Cover_Letter"
+```
+
+Each writes a `.docx` and a `.pdf` and prints `pdfPages`. If the resume runs longer than the
+original, cut the weakest material and render again; never shrink the font or margins to fit.
+If a file is open in Word, the renderer says so; ask the user to close it.
+
+The output folder holds only these four files. Do not write Markdown, notes, or drafts there.
 
 ## Report
 
-End with the output paths, the match summary (each must-have and its strength), the gaps that
-remain, and the questions from `notes.md`. If the candidate answers them, re-run steps 4-7
-with the new facts.
+End with the four file paths, the match summary (each must-have and its strength), what
+changed and why, the gaps that remain, the reviewer's verdict, and **questions that would
+make this stronger**: missing metrics, unclear scope, experience the candidate may have left
+off. If the candidate answers them, re-run steps 4-8 with the new facts.
 
 ## Do not
 
