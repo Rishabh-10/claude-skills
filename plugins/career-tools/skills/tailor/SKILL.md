@@ -99,8 +99,11 @@ resume.
 
 ## 6. Write the drafts
 
-The deliverables are PDF and DOCX files, produced by the bundled renderer. Get the paths first,
-using a lowercase hyphenated slug such as `acme-staff-backend-engineer`:
+The deliverables are PDF and DOCX files. The bundled renderer builds the DOCX with the `docx`
+npm package, then converts that DOCX to PDF (Microsoft Word on Windows, otherwise LibreOffice),
+so the two always match. If it reports a missing package or converter, relay its install
+command to the user and stop. Get the paths first, using a lowercase hyphenated slug such as
+`acme-staff-backend-engineer`:
 
 ```
 node "${CLAUDE_SKILL_DIR}/render.js" paths <company>-<role>
@@ -131,10 +134,8 @@ draft as JSON to the printed draft path:
   `\n` for the line break in the sign-off.
 - A `row` is a line with a left part and a right-aligned part (dates, location, a link); the
   right part may be `""`. Inline text supports `**bold**`, `*italic*`, and `[text](url)`.
-- `style.font` is `serif` (Times) or `sans` (Helvetica/Arial); `style.paper` is `a4` or
+- `style.font` is `serif` (Times New Roman) or `sans` (Arial); `style.paper` is `a4` or
   `letter`. Match the original resume's look; use `letter` paper for US and Canadian roles.
-- Text is limited to the Windows-1252 character set (Latin letters, curly quotes, dashes, `•`,
-  `×`). The renderer rejects anything else and names the characters; replace them.
 
 ## 7. Verify with an independent review
 
@@ -152,7 +153,7 @@ node "${CLAUDE_SKILL_DIR}/render.js" render <resumeDraft> "<outDir>/<First_Last>
 node "${CLAUDE_SKILL_DIR}/render.js" render <letterDraft> "<outDir>/<First_Last>_Cover_Letter"
 ```
 
-Each writes a `.docx` and a `.pdf` and prints `pdfPages`. If the resume runs longer than the
+Each writes a `.docx` and a `.pdf` and prints `pages`. If the resume runs longer than the
 original, cut the weakest material and render again; never shrink the font or margins to fit.
 If a file is open in Word, the renderer says so; ask the user to close it.
 

@@ -118,8 +118,17 @@ Set the folder once in `~/.claude/settings.json`:
 { "env": { "CAREER_TOOLS_OUTPUT_DIR": "C:/Users/you/Documents/applications" } }
 ```
 
-The bundled renderer is dependency-free Node: single-column, ATS-readable text, clickable
-links, serif or sans, A4 or Letter.
+The bundled renderer builds the DOCX with the [`docx`](https://www.npmjs.com/package/docx)
+package and converts it to PDF with Microsoft Word (Windows) or LibreOffice, so both files
+match exactly. Install once:
+
+```bash
+npm install -g docx
+# PDF conversion, if Word is not installed:
+winget install TheDocumentFoundation.LibreOffice   # or: brew install --cask libreoffice
+# Optional, to read .docx resumes as input:
+winget install JohnMacFarlane.Pandoc               # or: brew install pandoc
+```
 
 ### `guardrails` — hooks, no commands
 

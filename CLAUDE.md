@@ -35,9 +35,10 @@ agreement between each `plugin.json` and its marketplace entry, and then runs
 - **Version must match in two places** — `plugins/<name>/.claude-plugin/plugin.json` and
   the entry in `.claude-plugin/marketplace.json`. Bump both, or clients keep the cached
   copy. `validate.sh` enforces this.
-- **Scripts (hooks and the renderer) stay dependency-free and cross-platform.** No `jq`, no bash-isms, no
+- **Hook scripts stay dependency-free and cross-platform.** No `jq`, no bash-isms, no
   POSIX-only paths. Normalise paths to forward slashes before matching. These run on
-  Windows.
+  Windows. The career-tools renderer is the one exception: it needs the `docx` package and
+  Word or LibreOffice, and must say exactly what to install when either is missing.
 - **A hook must never break a turn.** Exit 0 on every unexpected condition — missing
   binary, unparseable stdin, timeout. `_hook.js` handles the defaults; do not bypass it.
 
