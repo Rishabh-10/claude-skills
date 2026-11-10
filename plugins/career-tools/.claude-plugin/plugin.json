@@ -1,0 +1,16 @@
+{
+  "name": "career-tools",
+  "version": "0.1.0",
+  "description": "Turn a resume and a job description into a tailored resume and cover letter, with an independent check that nothing was invented.",
+  "author": {
+    "name": "Rishabh Bharota"
+  },
+  "license": "MIT",
+  "keywords": [
+    "career",
+    "job-search",
+    "resume",
+    "cover-letter",
+    "application"
+  ]
+}

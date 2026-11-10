@@ -18,7 +18,8 @@ claude plugin marketplace add Rishabh-10/claude-skills
 claude plugin install dev-workflow@rishabh-dev-kit --scope user
 claude plugin install code-quality@rishabh-dev-kit --scope user
 claude plugin install git-workflow@rishabh-dev-kit --scope user
-claude plugin install claude-setup@rishabh-dev-kit --scope user
+claude plugin install repo-setup@rishabh-dev-kit --scope user
+claude plugin install career-tools@rishabh-dev-kit --scope user
 claude plugin install guardrails@rishabh-dev-kit   --scope project
 ```
 
@@ -47,8 +48,7 @@ Plus `ai-pitfalls` — an auto-loading knowledge skill covering the failure mode
 AI-written code: silent assumptions, invented APIs, drive-by refactoring, speculative
 abstraction, and claimed-but-unrun verification.
 
-Agents: `codebase-explorer` (read-only fan-out search), `implementation-planner` (design a
-change against the real code).
+Agent: `codebase-explorer` (read-only fan-out search for broad exploration).
 
 The full sequence is `brainstorm → challenge → plan → implement`, but each stands alone.
 Skip to `/plan` when you already know what you are building.
@@ -64,17 +64,17 @@ Skip to `/plan` when you already know what you are building.
 | `/code-quality:security-audit` | Trace untrusted input to sinks; report only findings with a real attack path |
 | `/code-quality:deps-audit` | Vulnerabilities, unused packages, duplicated deps, and a safe upgrade order |
 
-Agents: `code-reviewer`, `test-writer`, `security-auditor`.
+Agent: `code-reviewer` (parallel review for large diffs).
 
-### `claude-setup` — configure Claude Code itself
+### `repo-setup` — configure Claude Code itself
 
 | Command | What it does |
 | --- | --- |
-| `/claude-setup:bootstrap` | Investigate a repo, then write a grounded `CLAUDE.md` and `.claude/settings.json` |
-| `/claude-setup:new-skill` | Author a new skill: frontmatter that triggers, a body that instructs, a test that proves it fires |
-| `/claude-setup:audit-context` | Find config drift — dead commands, stale architecture, skills that never trigger |
+| `/repo-setup:bootstrap` | Investigate a repo, then write a grounded `CLAUDE.md` and `.claude/settings.json` |
+| `/repo-setup:new-skill` | Author a new skill: frontmatter that triggers, a body that instructs, a test that proves it fires |
+| `/repo-setup:audit-context` | Find config drift — dead commands, stale architecture, skills that never trigger |
 
-Run `/claude-setup:bootstrap` first in any new repo; run `/claude-setup:audit-context`
+Run `/repo-setup:bootstrap` first in any new repo; run `/repo-setup:audit-context`
 every few months, because `CLAUDE.md` rots faster than code and does it silently.
 
 ### `git-workflow` — commits through releases
@@ -89,6 +89,27 @@ every few months, because `CLAUDE.md` rots faster than code and does it silently
 
 All of these are manual-invoke only (`disable-model-invocation: true`). Claude will not
 decide on its own to commit, open a PR, or cut a release.
+
+### `career-tools` — tailored applications
+
+| Command | What it does |
+| --- | --- |
+| `/career-tools:tailor` | Resume + job description in, tailored resume + cover letter + notes out |
+
+```
+/career-tools:tailor ~/cv.pdf https://jobs.example.com/staff-engineer
+/career-tools:tailor resume.docx job.txt --resume-only
+```
+
+The resume can be PDF, DOCX (via pandoc), LaTeX, Markdown, or text; the posting can be a
+file, a URL, or pasted text. It decodes the posting, maps every requirement to evidence in
+the resume, then rewrites: reorders, rewords into the posting's vocabulary, cuts what does
+not serve the role. It never adds a skill, title, or number the original lacks; missing
+metrics become questions in `notes.md` instead.
+
+Agent: `application-reviewer` checks every tailored claim against the original resume and
+scores requirement coverage before anything is written out. Output lands in
+`applications/<company>-<role>/`, and the submitted files carry no change notes.
 
 ### `guardrails` — hooks, no commands
 
@@ -144,7 +165,7 @@ they are what make the skills useful in someone else's repo rather than only in 
 ## Repository layout
 
 ```
-.claude-plugin/marketplace.json   catalog of the five plugins
+.claude-plugin/marketplace.json   catalog of the six plugins
 plugins/<name>/
   .claude-plugin/plugin.json      manifest
   skills/<skill>/SKILL.md         slash commands + auto-loaded knowledge
@@ -152,7 +173,7 @@ plugins/<name>/
   hooks/hooks.json                hook wiring (guardrails only)
   scripts/*.js                    hook implementations (guardrails only)
 templates/                        portable CLAUDE.md + settings.json
-scripts/validate.sh               validates all five plugins
+scripts/validate.sh               validates every plugin
 scripts/check-frontmatter.js      YAML frontmatter linter
 ```
 

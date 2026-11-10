@@ -1,7 +1,7 @@
 {
   "name": "code-quality",
-  "version": "0.2.0",
-  "description": "Review, test, refactor, and audit skills plus specialist subagents for each.",
+  "version": "0.3.0",
+  "description": "Review, test, TDD, refactor, and audit skills plus a parallel code-review subagent.",
   "author": {
     "name": "Rishabh Bharota"
   },

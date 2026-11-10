@@ -91,7 +91,7 @@ Add `.claude/settings.local.json` to `.gitignore` if it is not already there.
 - **The evidence behind each non-obvious claim** — particularly the commands, since a wrong
   command in `CLAUDE.md` wastes every future session.
 - What you could not determine and left out, so the user can fill it in.
-- The suggestion to run `/claude-setup:audit-context` in a few weeks to catch drift.
+- The suggestion to run `/repo-setup:audit-context` in a few weeks to catch drift.
 
 ## Do not
 

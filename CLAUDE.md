@@ -1,6 +1,6 @@
 # claude-skills
 
-A Claude Code plugin marketplace. Five plugins under `plugins/`, catalogued in
+A Claude Code plugin marketplace. Six plugins under `plugins/`, catalogued in
 `.claude-plugin/marketplace.json`, plus portable templates in `templates/`.
 
 There is no application here — the deliverables are Markdown instructions, agent
@@ -18,7 +18,7 @@ definitions, and four Node.js hook scripts.
 
 `scripts/validate.sh` checks JSON syntax, JS parse, frontmatter presence, name/version
 agreement between each `plugin.json` and its marketplace entry, and then runs
-`claude plugin validate` on all five plugins. Run it before every commit.
+`claude plugin validate` on every plugin. Run it before every commit.
 
 ## Constraints
 

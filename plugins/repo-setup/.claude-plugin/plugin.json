@@ -1,5 +1,5 @@
 {
-  "name": "claude-setup",
+  "name": "repo-setup",
   "version": "0.1.0",
   "description": "Set Claude Code up in a repository: generate a grounded CLAUDE.md, wire settings and permissions, and author new skills correctly.",
   "author": { "name": "Rishabh Bharota" },

@@ -1,7 +1,7 @@
 {
   "name": "rishabh-dev-kit",
-  "description": "Reusable Claude Code plugins for software development: workflow skills, review agents, and safety hooks.",
-  "version": "0.2.0",
+  "description": "Reusable Claude Code plugins for software development, code quality, git workflows, and career tools: skills, agents, and safety hooks.",
+  "version": "0.3.0",
   "owner": {
     "name": "Rishabh Bharota",
     "url": "https://github.com/Rishabh-10"
@@ -11,7 +11,7 @@
       "name": "dev-workflow",
       "source": "./plugins/dev-workflow",
       "description": "The build loop: brainstorm, challenge, explore, plan, implement, debug, map, hand off.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "development",
       "keywords": [
         "workflow",
@@ -24,8 +24,8 @@
     {
       "name": "code-quality",
       "source": "./plugins/code-quality",
-      "description": "Review, test, TDD, refactor, and audit skills plus specialist subagents for each.",
-      "version": "0.2.0",
+      "description": "Review, test, TDD, refactor, and audit skills plus a parallel code-review subagent.",
+      "version": "0.3.0",
       "category": "quality",
       "keywords": [
         "review",
@@ -65,8 +65,8 @@
       "license": "MIT"
     },
     {
-      "name": "claude-setup",
-      "source": "./plugins/claude-setup",
+      "name": "repo-setup",
+      "source": "./plugins/repo-setup",
       "description": "Set Claude Code up in a repository: generate a grounded CLAUDE.md, wire settings, author new skills, and audit config drift.",
       "version": "0.1.0",
       "category": "meta",
@@ -76,6 +76,21 @@
         "claude-md",
         "skills",
         "meta"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "career-tools",
+      "source": "./plugins/career-tools",
+      "description": "Turn a resume and a job description into a tailored resume and cover letter, with an independent check that nothing was invented.",
+      "version": "0.1.0",
+      "category": "career",
+      "keywords": [
+        "career",
+        "resume",
+        "cover-letter",
+        "job-search",
+        "application"
       ],
       "license": "MIT"
     }
