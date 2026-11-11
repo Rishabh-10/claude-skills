@@ -4,10 +4,12 @@
 // two files always match.
 //
 //   node render.js paths <application-slug>
-//       Create the output folder and print where drafts and outputs go, as JSON.
+//       Create the output folder and print where drafts, outputs, and the candidate facts
+//       file go, as JSON.
 //       Output root: $CAREER_TOOLS_OUTPUT_DIR, else ./applications.
 //   node render.js render <draft.json> <output path without extension>
-//       Write <output>.docx and <output>.pdf; print their paths and the page count.
+//       Write <output>.docx and <output>.pdf; print their paths, the page count, and the
+//       hyperlink targets.
 //
 // Requires the `docx` npm package (local or `npm install -g docx`) and a converter:
 // Microsoft Word on Windows, or LibreOffice anywhere.
@@ -26,23 +28,31 @@ function fail(message) {
 
 const INLINE = /\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^)\s]+)\)|\*\*([^*]+)\*\*|\*([^*\s][^*]*)\*/g;
 
-function parseInline(src) {
+// A link that parseInline did not consume, such as one whose URL contains a space.
+const STRAY_LINK = /\]\(\s*(?:https?:\/\/|mailto:)/;
+
+// Split inline text into styled runs. Marks nest, so `**[text](url)**` and `[**text**](url)`
+// are both a bold hyperlink: each match is parsed again with its own style added.
+function parseInline(src, style = {}) {
   const runs = [];
+  const plain = (text) => {
+    if (STRAY_LINK.test(text)) fail(`cannot attach the link in "${src}"; write it as [text](url) with no spaces in the URL`);
+    runs.push({ ...style, text });
+  };
   let last = 0;
-  let m;
-  INLINE.lastIndex = 0;
-  while ((m = INLINE.exec(src))) {
-    if (m.index > last) runs.push({ text: src.slice(last, m.index) });
-    if (m[1] !== undefined) runs.push({ text: m[1], link: m[2] });
-    else if (m[3] !== undefined) runs.push({ text: m[3], bold: true });
-    else runs.push({ text: m[4], italic: true });
-    last = INLINE.lastIndex;
+  for (const m of src.matchAll(INLINE)) {
+    if (m.index > last) plain(src.slice(last, m.index));
+    if (m[1] !== undefined) runs.push(...parseInline(m[1], { ...style, link: m[2] }));
+    else if (m[3] !== undefined) runs.push(...parseInline(m[3], { ...style, bold: true }));
+    else runs.push(...parseInline(m[4], { ...style, italic: true }));
+    last = m.index + m[0].length;
   }
-  if (last < src.length) runs.push({ text: src.slice(last) });
+  if (last < src.length) plain(src.slice(last));
   return runs;
 }
 
-const FONTS = { serif: 'Times New Roman', sans: 'Arial' };
+const FONTS = { serif: 'Times New Roman', sans: 'Arial', calibri: 'Calibri' };
+const HEADERS = ['center', 'left'];
 const PAPER = { a4: { w: 11906, h: 16838 }, letter: { w: 12240, h: 15840 } };
 
 function validate(doc) {
@@ -59,7 +69,8 @@ function validate(doc) {
     else doc.contact.forEach((c, i) => str(c, `contact[${i}]`));
   }
   const style = doc.style || {};
-  if (style.font !== undefined && !FONTS[style.font]) errors.push('style.font must be "serif" or "sans"');
+  if (style.font !== undefined && !FONTS[style.font]) errors.push('style.font must be "serif", "sans", or "calibri"');
+  if (style.header !== undefined && !HEADERS.includes(style.header)) errors.push('style.header must be "center" or "left"');
   if (style.paper !== undefined && !PAPER[style.paper]) errors.push('style.paper must be "a4" or "letter"');
   if (style.size !== undefined && !(typeof style.size === 'number' && style.size >= 8 && style.size <= 14)) {
     errors.push('style.size must be a number from 8 to 14');
@@ -102,8 +113,12 @@ function validate(doc) {
 // Sizes in points; spacing in points before/after each paragraph.
 const KIND = {
   resume: { size: 10, margin: 36, nameSize: 18, nameAfter: 2, headerAfter: 2, headingBefore: 6, headingAfter: 3, rowBefore: 3, pAfter: 2, bulletAfter: 0, listAfter: 1 },
-  letter: { size: 11, margin: 72, nameSize: 16, nameAfter: 2, headerAfter: 18, headingBefore: 10, headingAfter: 4, rowBefore: 6, pAfter: 10, bulletAfter: 2, listAfter: 10 },
+  letter: { size: 11, margin: 72, line: 276, nameSize: 16, nameAfter: 2, headerAfter: 18, headingBefore: 10, headingAfter: 4, rowBefore: 6, pAfter: 12, bulletAfter: 2, listAfter: 12 },
 };
+// A left header is a letterhead: the name, then muted contact lines one point smaller, over a
+// light rule.
+const MUTED = '555555';
+const RULE = { heading: { color: '000000', space: 1 }, header: { color: 'BBBBBB', space: 8 } };
 const BULLET = { glyph: 4, text: 14 };
 
 function buildParas(doc) {
@@ -113,11 +128,21 @@ function buildParas(doc) {
   const push = (p) => paras.push({ before: 0, after: 0, size, ...p });
 
   const contact = doc.contact || [];
-  push({ type: 'name', runs: [{ text: doc.name, bold: true }], align: 'center', size: k.nameSize, after: contact.length ? k.nameAfter : k.headerAfter });
-  contact.forEach((c, i) => push({ type: 'contact', runs: parseInline(c), align: 'center', after: i === contact.length - 1 ? k.headerAfter : 0 }));
+  const left = Boolean(doc.style && doc.style.header === 'left');
+  const align = left ? undefined : 'center';
+  push({ type: 'name', runs: [{ text: doc.name, bold: true }], align, size: k.nameSize, after: contact.length ? k.nameAfter : k.headerAfter });
+  contact.forEach((c, i) => push({
+    type: 'contact',
+    runs: parseInline(c),
+    align,
+    size: left ? size - 1 : size,
+    color: left ? MUTED : undefined,
+    after: i === contact.length - 1 ? k.headerAfter : left ? k.nameAfter : 0,
+  }));
+  if (left) paras[paras.length - 1].rule = 'header';
 
   for (const s of doc.sections) {
-    if (s.heading) push({ type: 'heading', runs: [{ text: s.heading, bold: true }], caps: true, rule: true, keepNext: true, before: k.headingBefore, after: k.headingAfter });
+    if (s.heading) push({ type: 'heading', runs: [{ text: s.heading, bold: true }], caps: true, rule: 'heading', keepNext: true, before: k.headingBefore, after: k.headingAfter });
     for (const b of s.blocks) {
       const prev = paras[paras.length - 1].type;
       if (b.p !== undefined) push({ type: 'p', runs: parseInline(b.p), after: k.pAfter });
@@ -151,14 +176,16 @@ function renderDocx(paras, doc) {
   const k = KIND[doc.kind];
   const paper = PAPER[(doc.style && doc.style.paper) || 'a4'];
   const font = FONTS[(doc.style && doc.style.font) || 'serif'];
-  const bodySize = paras.find((p) => p.type !== 'name').size;
+  const bodySize = (doc.style && doc.style.size) || k.size;
+  const line = k.line || 240;
   const margin = tw(k.margin);
 
-  const runs = (r, size, caps) => {
+  const runs = (r, size, caps, color) => {
     const base = {
       bold: r.bold || undefined,
       italics: r.italic || undefined,
       allCaps: caps || undefined,
+      color: color || undefined,
       size: size === bodySize ? undefined : size * 2,
       style: r.link ? 'Hyperlink' : undefined,
     };
@@ -172,11 +199,11 @@ function renderDocx(paras, doc) {
         ...p.left.flatMap((r) => runs(r, p.size)),
         ...(p.right.length ? [new D.TextRun({ children: [new D.Tab()] }), ...p.right.flatMap((r) => runs(r, p.size))] : []),
       ]
-      : p.runs.flatMap((r) => runs(r, p.size, p.caps)),
+      : p.runs.flatMap((r) => runs(r, p.size, p.caps, p.color)),
     alignment: p.align === 'center' ? D.AlignmentType.CENTER : undefined,
-    spacing: { before: tw(p.before), after: tw(p.after) },
+    spacing: { before: tw(p.before), after: tw(p.after), line },
     keepNext: p.keepNext || undefined,
-    border: p.rule ? { bottom: { style: D.BorderStyle.SINGLE, size: 6, space: 1, color: '000000' } } : undefined,
+    border: p.rule ? { bottom: { style: D.BorderStyle.SINGLE, size: 6, ...RULE[p.rule] } } : undefined,
     tabStops: p.type === 'row' ? [{ type: D.TabStopType.RIGHT, position: paper.w - 2 * margin }] : undefined,
     numbering: p.type === 'bullet' ? { reference: 'bullets', level: 0 } : undefined,
   }));
@@ -188,7 +215,7 @@ function renderDocx(paras, doc) {
       default: {
         document: {
           run: { font, size: bodySize * 2 },
-          paragraph: { spacing: { after: 0, line: 240 } },
+          paragraph: { spacing: { after: 0, line } },
         },
       },
     },
@@ -274,7 +301,8 @@ function outputRoot() {
 
 function cmdPaths(slug) {
   if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) fail('paths needs a lowercase, hyphenated application slug such as acme-staff-engineer');
-  const outDir = path.join(outputRoot(), slug);
+  const root = outputRoot();
+  const outDir = path.join(root, slug);
   const draftDir = path.join(os.tmpdir(), 'career-tools', slug);
   fs.mkdirSync(outDir, { recursive: true });
   fs.mkdirSync(draftDir, { recursive: true });
@@ -282,6 +310,9 @@ function cmdPaths(slug) {
     outDir,
     resumeDraft: path.join(draftDir, 'resume.json'),
     letterDraft: path.join(draftDir, 'cover-letter.json'),
+    // One file per output root, shared by every application: what the candidate has said
+    // about their experience in earlier runs. The skill reads and appends to it.
+    factsFile: path.join(root, 'candidate-facts.md'),
   }, null, 2)}\n`);
 }
 
@@ -312,9 +343,12 @@ async function cmdRender(draftPath, outBase) {
   assertWritable(docxPath);
   assertWritable(pdfPath);
 
-  fs.writeFileSync(docxPath, await renderDocx(buildParas(doc), doc));
+  const paras = buildParas(doc);
+  // Every hyperlink target, in document order, so the caller can check none went missing.
+  const links = [...new Set(paras.flatMap((p) => p.runs || [...p.left, ...p.right]).filter((r) => r.link).map((r) => r.link))];
+  fs.writeFileSync(docxPath, await renderDocx(paras, doc));
   const { converter, pages } = convertToPdf(docxPath, pdfPath);
-  process.stdout.write(`${JSON.stringify({ docx: docxPath, pdf: pdfPath, pages, converter }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ docx: docxPath, pdf: pdfPath, pages, converter, links }, null, 2)}\n`);
 }
 
 const [command, ...args] = process.argv.slice(2);

@@ -83,7 +83,7 @@
       "name": "career-tools",
       "source": "./plugins/career-tools",
       "description": "Turn a resume and a job description into a tailored resume and cover letter as PDF and DOCX, with an independent check that nothing was invented.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "career",
       "keywords": [
         "career",

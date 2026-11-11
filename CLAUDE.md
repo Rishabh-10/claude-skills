@@ -14,6 +14,7 @@ definitions, four Node.js hook scripts, and the career-tools document renderer
 | Validate everything | `bash scripts/validate.sh` |
 | Check frontmatter only | `node scripts/check-frontmatter.js .` |
 | Syntax-check hooks | `node --check plugins/guardrails/scripts/*.js` |
+| Test the renderer (needs `docx` and Word or LibreOffice) | `node --test plugins/career-tools/tests/render.test.js` |
 | Smoke-test the renderer | `node plugins/career-tools/skills/tailor/render.js render <draft.json> <out-base>` |
 | Install locally for testing | `claude plugin marketplace add ./` then `claude plugin install <name>@rishabh-dev-kit --scope local` |
 | Refresh after an edit | `claude plugin install <name>@rishabh-dev-kit --scope local` (re-copies into the cache) |

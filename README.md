@@ -107,8 +107,13 @@ the resume, then rewrites: reorders, rewords into the posting's vocabulary, cuts
 not serve the role. It never adds a skill, title, or number the original lacks; missing
 metrics come back as questions in its report instead.
 
+Your answers to those questions are saved to `candidate-facts.md` in the output folder and
+read on every later run, so the same question is not asked twice and a fact you stated for
+one posting is available for the next. It is plain Markdown; edit it whenever something
+changes.
+
 Agent: `application-reviewer` checks every tailored claim against the original resume and
-scores requirement coverage before anything is rendered.
+your recorded facts, and scores requirement coverage before anything is rendered.
 
 Output is `<Name>_Resume` and `<Name>_Cover_Letter`, each as `.pdf` and `.docx`, in
 `$CAREER_TOOLS_OUTPUT_DIR/<company>-<role>/` (default `./applications/<company>-<role>/`).
